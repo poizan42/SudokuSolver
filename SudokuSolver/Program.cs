@@ -61,7 +61,7 @@ namespace PoiTech.SudokuSolver
             Console.WriteLine("*************************************");
         }
 
-        public static void PrintSolved(Sudoku sudoku)
+        public static void PrintSimple(Sudoku sudoku)
         {
             for (int row = 0; row < 9; row++)
             {
@@ -69,9 +69,17 @@ namespace PoiTech.SudokuSolver
                     Console.WriteLine("+---+---+---+");
                 for (int col = 0; col < 9; col++)
                 {
-                    Console.Write((col % 3 == 0 ? "|" : "") + (sudoku[new SudokuPosition(col, row)].First() + 1));
+                    if (col % 3 == 0)
+                        Console.Write('|');
+                    SudokuValues cellVal = sudoku[new SudokuPosition(col, row)];
+                    if (cellVal == SudokuValues.All)
+                        Console.Write(' ');
+                    else if (cellVal.Count == 1)
+                        Console.Write(cellVal.First() + 1);
+                    else
+                        Console.Write('?');
                 }
-                Console.WriteLine("+");
+                Console.WriteLine("|");
             }
             Console.WriteLine("+---+---+---+");
         }
@@ -80,13 +88,13 @@ namespace PoiTech.SudokuSolver
         {
             Sudoku sudoku = LoadSudoku(args[0]);
             Console.WriteLine("Loaded sudoku:");
-            PrintSudoku(sudoku);
+            PrintSimple(sudoku);
             Console.WriteLine("Solving...");
             switch (sudoku.BreadthFirstRecursiveSolve())
             {
                 case SudokuSolutionState.Solved:
                     Console.WriteLine("Solved!");
-                    PrintSolved(sudoku);
+                    PrintSimple(sudoku);
                     break;
                 case SudokuSolutionState.NoSolution:
                     Console.WriteLine("The sudoku has no solutions!");
@@ -95,7 +103,7 @@ namespace PoiTech.SudokuSolver
                     Console.WriteLine("The sudoku was too hard!");
                     break;
             }
-            //Console.ReadLine();
+            Console.ReadLine();
         }
     }
 }

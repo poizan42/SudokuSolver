@@ -259,6 +259,8 @@ namespace PoiTech.SudokuSolver
 
         public SudokuSolutionState BreadthFirstRecursiveSolve(int searchLimit = 1024)
         {
+            int branchCount = 0;
+            int invalidationCount = 0;
             bool searchLimitReached = false;
             List<Sudoku> sudokus = new List<Sudoku>();
             List<int> remSudokus = new List<int>();
@@ -275,6 +277,7 @@ namespace PoiTech.SudokuSolver
                     catch (SudokuOverdeterminedException)
                     {
                         remSudokus.Add(i);
+                        invalidationCount++;
                     }
                 }
                 int remOffset = 0;
@@ -295,6 +298,8 @@ namespace PoiTech.SudokuSolver
                     if (posn == null) //it's a solution!
                     {
                         data = s.data;
+                        Console.WriteLine("Solution found. Branch count {0}, invalidation count {1}, unexplored branches {2}.", 
+                            branchCount, invalidationCount, startLen - 1);
                         return SudokuSolutionState.Solved;
                     }
                     SudokuPosition pos = posn.Value;
@@ -312,7 +317,10 @@ namespace PoiTech.SudokuSolver
                         if (searchLimitReached)
                             break;
                         if (!first)
+                        {
                             sudokus.Add(s);
+                            branchCount++;
+                        }
                         else
                             first = false;
                     }
