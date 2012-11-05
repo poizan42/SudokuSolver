@@ -18,6 +18,11 @@ namespace PoiTech.SudokuSolver
                 for (int row = 0; row < 9; row++)
                 {
                     string[] vals = sr.ReadLine().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (vals.Length == 0 || vals[0][0] == '#')
+                    {
+                        row--;
+                        continue;
+                    }
                     for (int col = 0; col < 9; col++)
                     {
                         SudokuValues val = vals[col] == "*" ? SudokuValues.All : 
