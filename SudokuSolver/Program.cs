@@ -90,7 +90,7 @@ namespace PoiTech.SudokuSolver
                     Console.WriteLine("The sudoku was too hard!");
                     break;
             }
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }

@@ -155,7 +155,7 @@ namespace PoiTech.SudokuSolver
 
         public override string ToString()
         {
-            return "{" + String.Join(", ", this) + "}";
+            return "{" + String.Join(", ", this.Select(b => b + 1)) + "}";
         }
 
         public bool IsEmpty

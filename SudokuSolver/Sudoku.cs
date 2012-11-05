@@ -300,7 +300,7 @@ namespace PoiTech.SudokuSolver
                     SudokuPosition pos = posn.Value;
                     SudokuValues values = s[pos];
                     if (searchLimitReached)
-                        Console.WriteLine("Search depth reached. Guessing from {0} for {1}.", pos, values.First());
+                        Console.WriteLine("Search depth reached. Guessing from {0} for {1}.", pos, values.First() + 1);
                     else
                         Console.WriteLine("Solving recursively from {0} for {1}.", pos, values);
                     bool first = true;
