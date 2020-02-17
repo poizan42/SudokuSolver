@@ -132,13 +132,18 @@ namespace PoiTech.SudokuSolver
 
         static void Main(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
             List<(Sudoku, string)> sudokus;
             if (args[0] == "-csv")
+            {
+                sw.Start();
                 sudokus = LoadSudokusCsv(args[1]);
+                Console.WriteLine("{0} loaded in {1}", args[1], sw.Elapsed);
+            }
             else
                 sudokus = new List<(Sudoku, string)> { (LoadSudoku(args[0]), null) };
             bool print = sudokus.Count <= 1;
-            Stopwatch sw = Stopwatch.StartNew();
+            sw.Restart();
             int i = 1;
             foreach ((Sudoku sudoku, string solution) in sudokus)
             {
