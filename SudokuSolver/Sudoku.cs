@@ -257,7 +257,7 @@ namespace PoiTech.SudokuSolver
                 changed = SolveSingleRound();
         }
 
-        public SudokuSolutionState BreadthFirstRecursiveSolve(int searchLimit = 1024)
+        public SudokuSolutionState BreadthFirstRecursiveSolve(int searchLimit = 1024, bool print = true)
         {
             int branchCount = 0;
             int invalidationCount = 0;
@@ -298,15 +298,18 @@ namespace PoiTech.SudokuSolver
                     if (posn == null) //it's a solution!
                     {
                         data = s.data;
-                        Console.WriteLine("Solution found. Branch count {0}, invalidation count {1}, unexplored branches {2}.", 
-                            branchCount, invalidationCount, startLen - 1);
+                        if (print)
+                        {
+                            Console.WriteLine("Solution found. Branch count {0}, invalidation count {1}, unexplored branches {2}.",
+                                branchCount, invalidationCount, startLen - 1);
+                        }
                         return SudokuSolutionState.Solved;
                     }
                     SudokuPosition pos = posn.Value;
                     SudokuValues values = s[pos];
                     if (searchLimitReached)
                         Console.WriteLine("Search depth reached. Guessing from {0} for {1}.", pos, values.First() + 1);
-                    else
+                    else if (print)
                         Console.WriteLine("Solving recursively from {0} for {1}.", pos, values);
                     bool first = true;
                     foreach (byte num in values)

@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace PoiTech.SudokuSolver
 {   
@@ -34,10 +35,55 @@ namespace PoiTech.SudokuSolver
             return sudoku;
         }
 
+        private static List<(Sudoku, string)> LoadSudokusCsv(string filename)
+        {
+            var sudokus = new List<(Sudoku, string)>();
+            bool firstLine = true;
+            using (StreamReader sr = new StreamReader(filename, Encoding.ASCII))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (firstLine && line.Length > 0 && !char.IsDigit(line[0]))
+                        continue;
+                    firstLine = false;
+                    string[] parts = line.Split(',');
+                    string quiz = parts[0];
+                    string sol = parts.Length > 1 ? parts[1] : null;
+                    Sudoku sudoku = new Sudoku();
+                    for (int row = 0; row < 9; row++)
+                    {
+                        for (int col = 0; col < 9; col++)
+                        {
+                            int iVal = quiz[row * 9 + col] - '0';
+                            SudokuValues val = iVal == 0 ? SudokuValues.All : SudokuValues.FromSingleValueUnbiased((byte)iVal);
+                            sudoku[new SudokuPosition(col, row)] = val;
+                        }
+                    }
+                    sudokus.Add((sudoku, sol));
+                }
+            }
+            return sudokus;
+        }
+
         private static void PrintFieldPart(SudokuValues values, int part)
         {
             for (int v = part; v < part + 3; v++)
                 Console.Write(values.Contains((byte)v) ? (v + 1).ToString(CultureInfo.InvariantCulture) : " ");
+        }
+
+        private static bool CompareSolution(Sudoku sudoku, string solution)
+        {
+            for (int row = 0; row < 9; row++)
+            {
+                for (int col = 0; col < 9; col++)
+                {
+                    int iVal = solution[row * 9 + col] - '0';
+                    if (!sudoku[new SudokuPosition(col, row)].ContainsUnbiased((byte)iVal))
+                        return false;
+                }
+            }
+            return true;
         }
 
         private static void PrintSudoku(Sudoku sudoku)
@@ -86,24 +132,50 @@ namespace PoiTech.SudokuSolver
 
         static void Main(string[] args)
         {
-            Sudoku sudoku = LoadSudoku(args[0]);
-            Console.WriteLine("Loaded sudoku:");
-            PrintSimple(sudoku);
-            Console.WriteLine("Solving...");
-            switch (sudoku.BreadthFirstRecursiveSolve())
+            List<(Sudoku, string)> sudokus;
+            if (args[0] == "-csv")
+                sudokus = LoadSudokusCsv(args[1]);
+            else
+                sudokus = new List<(Sudoku, string)> { (LoadSudoku(args[0]), null) };
+            bool print = sudokus.Count <= 1;
+            Stopwatch sw = Stopwatch.StartNew();
+            int i = 1;
+            foreach ((Sudoku sudoku, string solution) in sudokus)
             {
-                case SudokuSolutionState.Solved:
-                    Console.WriteLine("Solved!");
+                if (print)
+                {
+                    Console.WriteLine("Loaded sudoku:");
                     PrintSimple(sudoku);
-                    break;
-                case SudokuSolutionState.NoSolution:
-                    Console.WriteLine("The sudoku has no solutions!");
-                    break;
-                case SudokuSolutionState.TooHard:
-                    Console.WriteLine("The sudoku was too hard!");
-                    break;
+                    Console.WriteLine("Solving...");
+                }
+                SudokuSolutionState solState = sudoku.BreadthFirstRecursiveSolve(print: print);
+                if (solution != null)
+                {
+                    if (!CompareSolution(sudoku, solution))
+                    {
+                        Console.WriteLine("{0}: Wrong solution!", i);
+                    }
+                }
+                switch (solState)
+                {
+                    case SudokuSolutionState.Solved:
+                        if (print)
+                        {
+                            Console.WriteLine("Solved!");
+                            PrintSimple(sudoku);
+                        }
+                        break;
+                    case SudokuSolutionState.NoSolution:
+                        Console.WriteLine("{0}: The sudoku has no solutions!", i);
+                        break;
+                    case SudokuSolutionState.TooHard:
+                        Console.WriteLine("{0}: The sudoku was too hard!", i);
+                        break;
+                }
+                i++;
             }
-            Console.ReadLine();
+            Console.WriteLine("Total time: {0}", sw.Elapsed);
+            //Console.ReadLine();
         }
     }
 }

@@ -31,9 +31,19 @@ namespace PoiTech.SudokuSolver
             this.val = sv.val;
         }
 
+        public static SudokuValues FromSingleValueUnbiased(byte val)
+        {
+            return new SudokuValues(1 << (val - 1));
+        }
+
         public bool Contains(byte i)
         {
             return (val & (1 << i)) != 0;
+        }
+        
+        public bool ContainsUnbiased(byte i)
+        {
+            return Contains((byte)(i - 1));
         }
 
         public static SudokuValues operator +(SudokuValues a, byte b)
